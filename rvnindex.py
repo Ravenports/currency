@@ -1,5 +1,5 @@
 """
-Module to fetch the current ravenports index if it has changed.  Additinally
+Module to fetch the current ravenports index if it has changed.  Additionally
 it will parse the file and return a dictionary of namebase and current versions.
 """
 
