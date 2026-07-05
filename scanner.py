@@ -10,6 +10,7 @@ from rubygems import RubygemsIndex
 from crates import CratesIndex
 from cran import CranIndex
 from perl import CpanIndex
+from pypi import PypiIndex
 
 class Scanner:
     """ See top description """
@@ -18,6 +19,7 @@ class Scanner:
     SOURCE_CRAN = 2
     SOURCE_CPAN = 3
     SOURCE_CRATESIO = 4
+    SOURCE_PYPI = 5
 
     def __init__(self):
         """
@@ -97,6 +99,17 @@ class Scanner:
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_CRATESIO, version)]
 
+    def _fetch_pypi(self):
+        """
+        Fetch latest python modules
+        """
+        pypi_cache = PypiIndex()
+        newfile = pypi_cache.fetch()
+        pypi_map = pypi_cache.get_pypi_mapping(self.rpindex)
+        final_versions = pypi_cache.parse_and_filter(pypi_map)
+        for namebase, version in final_versions.items():
+            self.sources[namebase] = [(self.SOURCE_CRATESIO, version)]
+
     def fetch(self):
         """
         Individually fetch all the repository sources.  With the output of
@@ -107,9 +120,21 @@ class Scanner:
         self._fetch_cran_index()
         self._fetch_cpan_index()
         self._fetch_cratesio()
+        self._fetch_pypi()
 
     def show_sources(self):
         """
         Debug function to show combined sources
         """
         print(self.sources)
+
+    def show_orphans(self):
+        """
+        Debug functions to show which ports have no sources in which to compare versions.
+        """
+        orphans = []
+        for namebase in self.rpindex:
+            if not namebase in self.sources:
+                orphans.append(namebase)
+        print(orphans)
+        print(f"Total number of orphans: {len(orphans)}")
