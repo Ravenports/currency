@@ -11,6 +11,7 @@ from crates import CratesIndex
 from cran import CranIndex
 from perl import CpanIndex
 from pypi import PypiIndex
+from homebrew import HomebrewIndex
 
 class Scanner:
     """ See top description """
@@ -20,14 +21,15 @@ class Scanner:
     SOURCE_CPAN = 3
     SOURCE_CRATESIO = 4
     SOURCE_PYPI = 5
+    SOURCE_HOMEBREW = 6
 
     def __init__(self):
         """
         initialization
         """
-
         self.sources = {}
         self.rpindex = {}
+        self.trimndx = {}
 
     def _fetch_rvnindex(self):
         """
@@ -41,6 +43,7 @@ class Scanner:
             print("rvnindex.txt is already up to date. Using local cache.")
 
         self.rpindex = cache.get_unique_index()
+        self.trimndx = self.rpindex
 
     def _fetch_rubygems(self):
         """
@@ -57,6 +60,7 @@ class Scanner:
         final_versions = gem_cache.parse_and_filter(gem_map)
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_RUBYGEMS, version)]
+            self.trimndx.pop(namebase, None)
 
     def _fetch_cran_index(self):
         """
@@ -73,6 +77,7 @@ class Scanner:
         final_versions = cran_cache.parse_and_filter(cran_map)
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_CRAN, version)]
+            self.trimndx.pop(namebase, None)
 
     def _fetch_cpan_index(self):
         """
@@ -88,6 +93,7 @@ class Scanner:
         final_versions = perl_cache.parse_and_filter(perl_map)
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_CPAN, version)]
+            self.trimndx.pop(namebase, None)
 
     def _fetch_cratesio(self):
         """
@@ -98,6 +104,7 @@ class Scanner:
         final_versions = crates_cache.parse()
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_CRATESIO, version)]
+            self.trimndx.pop(namebase, None)
 
     def _fetch_pypi(self):
         """
@@ -109,6 +116,24 @@ class Scanner:
         final_versions = pypi_cache.parse_and_filter(pypi_map)
         for namebase, version in final_versions.items():
             self.sources[namebase] = [(self.SOURCE_CRATESIO, version)]
+            self.trimndx.pop(namebase, None)
+
+    def _fetch_homebrew(self):
+        """
+        Fetch latest homebrew versions
+        """
+        brew_cache = HomebrewIndex()
+        if brew_cache.fetch():
+            print("Downloaded latest Homebrew index!")
+        else:
+            print("Homebrew index is up to date.  Using the cached version.")
+
+        brew_map = brew_cache.get_brew_mapping(self.trimndx)
+        final_versions = brew_cache.parse_and_filter(brew_map)
+        for namebase, version in final_versions.items():
+            if not namebase in self.sources:
+                self.sources[namebase] = []
+            self.sources[namebase].append((self.SOURCE_HOMEBREW, version))
 
     def fetch(self):
         """
@@ -121,6 +146,7 @@ class Scanner:
         self._fetch_cpan_index()
         self._fetch_cratesio()
         self._fetch_pypi()
+        self._fetch_homebrew()
 
     def show_sources(self):
         """
@@ -128,13 +154,19 @@ class Scanner:
         """
         print(self.sources)
 
-    def show_orphans(self):
+    def show_orphans(self, prefix=None):
         """
         Debug functions to show which ports have no sources in which to compare versions.
+
+        If prefix is provided, only namebases starting with that prefix are considered.
         """
         orphans = []
         for namebase in self.rpindex:
+            if prefix and not namebase.startswith(prefix):
+                continue
             if not namebase in self.sources:
                 orphans.append(namebase)
         print(orphans)
         print(f"Total number of orphans: {len(orphans)}")
+
+

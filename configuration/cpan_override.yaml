@@ -1,0 +1,6 @@
+perl-TermReadKey: Term-ReadKey
+perl-Onyphe: OPP
+perl-HTML-Element-Extended: HTML-ElementTable
+perl-libwww-perl: LWP
+perl-libxml-perl: XML-Handler-XMLWriter
+perl-Algorithm-DependencySolver: Algorithm-DependencySolver-Operation
