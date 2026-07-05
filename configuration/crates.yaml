@@ -1,0 +1,8 @@
+# contrya has been removed from crates.io
+b3sum: b3sum
+shotgun: shotgun
+cbindgen: cbindgen
+shadowsocks-rust: shadowsocks-rust
+cargo-c: cargo-c
+sccache: sccache
+bindgen-cli: bindgen
