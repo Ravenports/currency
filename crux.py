@@ -1,33 +1,46 @@
+"""
+Module to fetch and parse the CRUX repology port index, which lists
+every port name/version pair currently in the CRUX distribution.
+"""
+
 import os
 import json
 import urllib.request
 from urllib.error import HTTPError
 
-class HomebrewIndex:
-    """Manages downloading and parsing the Homebrew formulae repository index file."""
 
-    # Official uncompressed Homebrew Core API index
-    URL = "https://formulae.brew.sh/api/formula.json"
-    FILENAME = "formula.json"
-    CACHE_DIR_NAME = "homebrew"
+class CruxIndex:
+    """Manages downloading and parsing the CRUX repology ports index file."""
+
+    # Bump this when CRUX moves to a new major.minor release; nothing else
+    # in this class needs to change.
+    CRUX_VERSION = "3.8"
+
+    URL_TEMPLATE = "https://crux.nu/files/repology-{version}.json"
+
+    CACHE_DIR_NAME = "crux"
 
     def __init__(self):
         """Initialize paths strictly relative to this module's true location on disk."""
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.cache_dir = os.path.normpath(os.path.join(script_dir, "remote_cache", self.CACHE_DIR_NAME))
 
-        self.data_file = os.path.join(self.cache_dir, self.FILENAME)
-        self.etag_file = os.path.join(self.cache_dir, f"{self.FILENAME}.etag")
+        self.filename = f"repology-{self.CRUX_VERSION}.json"
+        self.data_file = os.path.join(self.cache_dir, self.filename)
+        self.etag_file = os.path.join(self.cache_dir, f"{self.filename}.etag")
+
+    @property
+    def url(self) -> str:
+        return self.URL_TEMPLATE.format(version=self.CRUX_VERSION)
 
     def fetch(self) -> bool:
         """
-        Fetch formula.json if it has changed since the last download.
+        Fetch the repology ports index if it has changed since the last download.
 
         :return: True if a new index was downloaded, False if cached (304).
         """
         os.makedirs(self.cache_dir, exist_ok=True)
-        req = urllib.request.Request(self.URL)
-        req.add_header("User-Agent", "Ravenports-Package-Sync-Bot/1.0 (draco@marino.com)")
+        req = urllib.request.Request(self.url)
 
         if os.path.exists(self.etag_file) and os.path.exists(self.data_file) and os.path.getsize(self.data_file) > 0:
             with open(self.etag_file, "r", encoding="utf-8") as f:
@@ -52,13 +65,13 @@ class HomebrewIndex:
                 return False
             raise e
 
-    def get_brew_mapping(self, namebase_dict: dict) -> dict:
+    def get_crux_mapping(self, namebase_dict: dict) -> dict:
         """
-        Maps namebase entries exactly to Homebrew formula names without automatic modification,
-        then safely layers local overrides from configuration/homebrew_override.yaml.
+        Maps namebase entries exactly to CRUX port names without automatic modification,
+        then safely layers local overrides from configuration/crux_override.yaml.
 
         :param namebase_dict: Input dictionary where keys are namebase strings.
-        :return: A dictionary of {namebase: formula_name}
+        :return: A dictionary of {namebase: crux_port_name}
         """
         import yaml
 
@@ -70,26 +83,26 @@ class HomebrewIndex:
 
         # 2. Layer custom specifications from the overrides profile if it exists
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        yaml_path = os.path.normpath(os.path.join(script_dir, "configuration", "homebrew_override.yaml"))
+        yaml_path = os.path.normpath(os.path.join(script_dir, "configuration", "crux_override.yaml"))
 
         if os.path.exists(yaml_path):
             with open(yaml_path, "r", encoding="utf-8") as f:
                 overrides = yaml.safe_load(f)
                 if isinstance(overrides, dict):
-                    for namebase, true_brew_name in overrides.items():
-                        internal_map[namebase] = true_brew_name
+                    for namebase, true_crux_name in overrides.items():
+                        internal_map[namebase] = true_crux_name
 
         return internal_map
 
-    def parse_and_filter(self, allowed_brew_dict: dict) -> dict:
+    def parse_and_filter(self, allowed_crux_dict: dict) -> dict:
         """
-        Parses formula.json and filters out everything except targeted mapping entries.
+        Parses the repology ports index and filters out everything except targeted mapping entries.
 
-        Homebrew's API index is a flat JSON array of objects:
-        [ {"name": "wget", "versions": {"stable": "1.21.4"}}, ... ]
+        CRUX's repology index is a JSON object with a "ports" array:
+        { "updated": "...", "ports": [ {"name": "readline", "version": "8.3.3", ...}, ... ] }
 
-        :param allowed_brew_dict: Dict of {namebase: formula_name}
-        :return: A dictionary of {namebase: stable_version}
+        :param allowed_crux_dict: Dict of {namebase: crux_port_name}
+        :return: A dictionary of {namebase: version}
         """
         final_results = {}
 
@@ -97,25 +110,23 @@ class HomebrewIndex:
             raise FileNotFoundError(f"Index file not found at {self.data_file}. Run fetch() first.")
 
         # Invert your lookup mapping dictionary to run O(1) matching checks during iteration
-        brew_to_namebase = {v: k for k, v in allowed_brew_dict.items()}
+        crux_to_namebase = {v: k for k, v in allowed_crux_dict.items()}
 
         with open(self.data_file, "r", encoding="utf-8") as f:
-            formulae_list = json.load(f)
+            payload = json.load(f)
+            ports = payload.get("ports", [])
 
-            for formula in formulae_list:
-                if not isinstance(formula, dict):
+            for port in ports:
+                if not isinstance(port, dict):
                     continue
 
-                brew_name = formula.get("name")
+                crux_name = port.get("name")
 
-                if brew_name in brew_to_namebase:
-                    namebase = brew_to_namebase[brew_name]
+                if crux_name in crux_to_namebase:
+                    namebase = crux_to_namebase[crux_name]
 
-                    # Target the current stable release string inside the versions nested block
-                    versions_block = formula.get("versions", {})
-                    stable_version = versions_block.get("stable")
-
-                    if stable_version:
-                        final_results[namebase] = str(stable_version)
+                    version = port.get("version")
+                    if version:
+                        final_results[namebase] = str(version)
 
         return final_results

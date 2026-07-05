@@ -11,6 +11,7 @@ from crates import CratesIndex
 from cran import CranIndex
 from perl import CpanIndex
 from pypi import PypiIndex
+from crux import CruxIndex
 from php import PhpIndex
 from homebrew import HomebrewIndex
 
@@ -24,6 +25,7 @@ class Scanner:
     SOURCE_PYPI = 5
     SOURCE_PHP = 6
     SOURCE_HOMEBREW = 7
+    SOURCE_CRUX = 8
 
     def __init__(self):
         """
@@ -120,6 +122,19 @@ class Scanner:
             self.sources[namebase] = [(self.SOURCE_CRATESIO, version)]
             self.trimndx.pop(namebase, None)
 
+    def _fetch_php(self):
+        """
+        Fetch latest php versions
+        """
+        php_cache = PhpIndex()
+        newfiles = php_cache.fetch()
+
+        php_map = php_cache.get_php_mapping(self.rpindex)
+        final_versions = php_cache.parse_and_filter(php_map)
+        for namebase, version in final_versions.items():
+            self.sources[namebase] = [(self.SOURCE_PHP, version)]
+            self.trimndx.pop(namebase, None)
+
     def _fetch_homebrew(self):
         """
         Fetch latest homebrew versions
@@ -137,18 +152,22 @@ class Scanner:
                 self.sources[namebase] = []
             self.sources[namebase].append((self.SOURCE_HOMEBREW, version))
 
-    def _fetch_php(self):
+    def _fetch_crux(self):
         """
-        Fetch latest php versions
+        Fetch latest CRUX versions
         """
-        php_cache = PhpIndex()
-        newfiles = php_cache.fetch()
+        crux_cache = CruxIndex()
+        if crux_cache.fetch():
+            print("Downloaded latest CRUX index!")
+        else:
+            print("Crux index is up to date.  Using the cached version.")
 
-        php_map = php_cache.get_php_mapping(self.rpindex)
-        final_versions = php_cache.parse_and_filter(php_map)
+        crux_map = crux_cache.get_crux_mapping(self.trimndx)
+        final_versions = crux_cache.parse_and_filter(crux_map)
         for namebase, version in final_versions.items():
-            self.sources[namebase] = [(self.SOURCE_PHP, version)]
-            self.trimndx.pop(namebase, None)
+            if not namebase in self.sources:
+                self.sources[namebase] = []
+            self.sources[namebase].append((self.SOURCE_CRUX, version))
 
 
     def fetch(self):
@@ -164,6 +183,7 @@ class Scanner:
         self._fetch_pypi()
         self._fetch_php()
         self._fetch_homebrew()
+        self._fetch_crux()
 
     def show_sources(self):
         """
