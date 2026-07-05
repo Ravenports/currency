@@ -11,6 +11,7 @@ from crates import CratesIndex
 from cran import CranIndex
 from perl import CpanIndex
 from pypi import PypiIndex
+from php import PhpIndex
 from homebrew import HomebrewIndex
 
 class Scanner:
@@ -21,7 +22,8 @@ class Scanner:
     SOURCE_CPAN = 3
     SOURCE_CRATESIO = 4
     SOURCE_PYPI = 5
-    SOURCE_HOMEBREW = 6
+    SOURCE_PHP = 6
+    SOURCE_HOMEBREW = 7
 
     def __init__(self):
         """
@@ -135,6 +137,20 @@ class Scanner:
                 self.sources[namebase] = []
             self.sources[namebase].append((self.SOURCE_HOMEBREW, version))
 
+    def _fetch_php(self):
+        """
+        Fetch latest php versions
+        """
+        php_cache = PhpIndex()
+        newfiles = php_cache.fetch()
+
+        php_map = php_cache.get_php_mapping(self.rpindex)
+        final_versions = php_cache.parse_and_filter(php_map)
+        for namebase, version in final_versions.items():
+            self.sources[namebase] = [(self.SOURCE_PHP, version)]
+            self.trimndx.pop(namebase, None)
+
+
     def fetch(self):
         """
         Individually fetch all the repository sources.  With the output of
@@ -146,6 +162,7 @@ class Scanner:
         self._fetch_cpan_index()
         self._fetch_cratesio()
         self._fetch_pypi()
+        self._fetch_php()
         self._fetch_homebrew()
 
     def show_sources(self):
