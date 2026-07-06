@@ -221,12 +221,10 @@ class Scanner:
             with open(yaml_path, "r", encoding="utf-8") as f:
                 # safe_load prevents arbitrary code execution vulnerabilities
                 config = yaml.safe_load(f)
-                if isinstance(config["infrastructure"], list):
-                    for namebase in config["infrastructure"]:
-                        self.rpindex.pop(namebase, None)
-                if isinstance(config["metaports"], list):
-                    for namebase in config["metaports"]:
-                        self.rpindex.pop(namebase, None)
+                for cat in ["infrastructure", "metaports", "adaports", "unique"]:
+                    if isinstance(config[cat], list):
+                        for namebase in config[cat]:
+                            self.rpindex.pop(namebase, None)
 
         self.trimndx = self.rpindex
 

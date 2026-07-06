@@ -20,6 +20,7 @@ infrastructure:
     - ravensys-utils
     - ravensys-vuln
     - rvn
+
 metaports:
     - xorg-drivers-minimal
     - xorg-apps
@@ -32,3 +33,59 @@ metaports:
     - xorg-type1-fonts
     - xorg-cyrillic-fonts
     - truetype-fonts
+
+adaports:
+    - excel-writer
+    - PragmARC
+    - alog
+    - anet
+    - aunit
+    - ahven
+    - AdaID
+    - booch95
+    - florist
+    - adasockets
+    - pcsc-ada
+    - generic_image_decoder
+    - libsparkcrypto
+    - words
+    - ironsides
+    - simple_components
+    - sparforte
+    - zip-ada
+    - apq-pgsql
+    - apq-odbc
+    - apq-base
+    - aflex-ayacc
+    - ACATS
+    - aws
+    - libadalang
+    - libadalang-tools
+    - AdaSAT
+    - adabase
+    - ada-markdown
+    - gnatdoc
+    - gnatformat
+    - gpr2tools
+    - gnatcoll-bindings
+    - gnatcoll-core
+    - gnatcoll-db
+    - gtkada
+    - templates-parser
+    - XML_EZ_Out
+    - gnatstudio
+    - ada_language_server
+    - prettier-ada
+    - ada_spawn
+    - langkit
+    - langkit_support
+    - vss-text
+    - vss-extra
+    - ada_libfswatch
+    - libxdiff_ada
+
+unique:
+    - autoselect-python
+    - autoselect-perl
+    - autoselect-ssl
+    - autoselect-ruby
