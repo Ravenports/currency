@@ -1,0 +1,34 @@
+infrastructure:
+    - gnatcross
+    - gnatcross-bootstrap
+    - gnatcross-sysroot-freebsd
+    - gnatcross-sysroot-midnightbsd
+    - gnatcross-sysroot-netbsd
+    - gnatcross-sysroot-solaris
+    - ravenadm
+    - ravenports
+    - ravensys-binutils
+    - ravensys-gcc
+    - ravensys-root-dragonfly
+    - ravensys-root-freebsd14_amd64
+    - ravensys-root-freebsd15_amd64
+    - ravensys-root-linux
+    - ravensys-root-midnightbsd_amd64
+    - ravensys-root-netbsd_amd64
+    - ravensys-root-sunos
+    - ravensys-toolchain
+    - ravensys-utils
+    - ravensys-vuln
+    - rvn
+metaports:
+    - xorg-drivers-minimal
+    - xorg-apps
+    - xorg-fonts
+    - xorg-drivers
+    - xorg-libraries
+    - xorg-misc-bitmap-fonts
+    - xorg-75dpi-fonts
+    - xorg-100dpi-fonts
+    - xorg-type1-fonts
+    - xorg-cyrillic-fonts
+    - truetype-fonts

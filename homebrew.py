@@ -97,7 +97,7 @@ class HomebrewIndex:
             raise FileNotFoundError(f"Index file not found at {self.data_file}. Run fetch() first.")
 
         # Invert your lookup mapping dictionary to run O(1) matching checks during iteration
-        brew_to_namebase = {v: k for k, v in allowed_brew_dict.items()}
+        brew_to_namebase = {v.lower(): k for k, v in allowed_brew_dict.items()}
 
         with open(self.data_file, "r", encoding="utf-8") as f:
             formulae_list = json.load(f)
@@ -106,10 +106,10 @@ class HomebrewIndex:
                 if not isinstance(formula, dict):
                     continue
 
-                brew_name = formula.get("name")
+                brew_name = formula.get("name", "")
 
                 if brew_name in brew_to_namebase:
-                    namebase = brew_to_namebase[brew_name]
+                    namebase = brew_to_namebase[brew_name.lower()]
 
                     # Target the current stable release string inside the versions nested block
                     versions_block = formula.get("versions", {})

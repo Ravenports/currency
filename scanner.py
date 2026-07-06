@@ -5,6 +5,9 @@ It can produce a report of outdates ravenports as well as
 "unique" ports that only exist on Ravenports as compared to the reference sources
 """
 
+import os
+import yaml
+
 from rvnindex import RavenportsIndex
 from rubygems import RubygemsIndex
 from crates import CratesIndex
@@ -47,7 +50,6 @@ class Scanner:
             print("rvnindex.txt is already up to date. Using local cache.")
 
         self.rpindex = cache.get_unique_index()
-        self.trimndx = self.rpindex
 
     def _fetch_rubygems(self):
         """
@@ -176,6 +178,8 @@ class Scanner:
         each fetch, build the sources data.
         """
         self._fetch_rvnindex()
+        self._remove_entries()
+
         self._fetch_rubygems()
         self._fetch_cran_index()
         self._fetch_cpan_index()
@@ -184,6 +188,27 @@ class Scanner:
         self._fetch_php()
         self._fetch_homebrew()
         self._fetch_crux()
+
+    def _remove_entries(self):
+        """
+        read the scanner.yaml configuration and remove entries as necessary
+        """
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_dir = os.path.join(script_dir, "configuration")
+        yaml_path = os.path.join(config_dir, "scanner.yaml")
+
+        if os.path.exists(yaml_path):
+            with open(yaml_path, "r", encoding="utf-8") as f:
+                # safe_load prevents arbitrary code execution vulnerabilities
+                config = yaml.safe_load(f)
+                if isinstance(config["infrastructure"], list):
+                    for namebase in config["infrastructure"]:
+                        self.rpindex.pop(namebase, None)
+                if isinstance(config["metaports"], list):
+                    for namebase in config["metaports"]:
+                        self.rpindex.pop(namebase, None)
+
+        self.trimndx = self.rpindex
 
     def show_sources(self):
         """
