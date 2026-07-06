@@ -16,6 +16,7 @@ from perl import CpanIndex
 from pypi import PypiIndex
 from crux import CruxIndex
 from php import PhpIndex
+from freebsd import FreeBSDIndex
 from homebrew import HomebrewIndex
 
 class Scanner:
@@ -29,6 +30,7 @@ class Scanner:
     SOURCE_PHP = 6
     SOURCE_HOMEBREW = 7
     SOURCE_CRUX = 8
+    SOURCE_FREEBSD = 9
 
     def __init__(self):
         """
@@ -171,6 +173,23 @@ class Scanner:
                 self.sources[namebase] = []
             self.sources[namebase].append((self.SOURCE_CRUX, version))
 
+    def _fetch_freebsd(self):
+        """
+        Fetch latest FreeBSD port collection versions
+        """
+        fbsd_cache = FreeBSDIndex()
+        if fbsd_cache.fetch():
+            print("Downloaded latest FreeBSD index!")
+        else:
+            print("FreeBSD index is up to date.  Using the cached version.")
+
+        fbsd_map = fbsd_cache.get_freebsd_mapping(self.trimndx)
+        final_versions = fbsd_cache.parse_and_filter(fbsd_map)
+        for namebase, version in final_versions.items():
+            if not namebase in self.sources:
+                self.sources[namebase] = []
+            self.sources[namebase].append((self.SOURCE_FREEBSD, version))
+
 
     def fetch(self):
         """
@@ -188,6 +207,7 @@ class Scanner:
         self._fetch_php()
         self._fetch_homebrew()
         self._fetch_crux()
+        self._fetch_freebsd()
 
     def _remove_entries(self):
         """
