@@ -87,3 +87,15 @@ xorg-xdmcp: xorg-libxdmcp
 xorg-xtransproto: xorg-libxtrans
 xorg-xv: xorg-libxv
 xorg-xdamage: libxdamage
+apr1: apr
+atkmm: zzzzzz
+atkmm16: atkmm
+autoconf213: autoconf-2.13
+boehm_garbage_collector: boehm-gc
+boost-libraries: boost
+cairomm10: cairomm-1.0
+fonts-dejavu: Xorg-font-dejavu-ttf
+fonts-noto-ttf: ttf-noto
+fonts-terminus: Xorg-font-terminus
+fonts-twemoji-color: ttf-twemoji-color
+fuse2: fuse

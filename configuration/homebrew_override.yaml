@@ -42,3 +42,11 @@ xorg-xv: libxv
 xorg-dmx: libdmx
 xorg-xdamage: libxdamage
 xorg-xfont: libxfont
+apr1: apr
+atkmm16: atkmm@2.28
+boehm_garbage_collector: bdw-gc
+boost-libraries: boost
+clang21: llvm@21
+db4: berkeley-db@4
+ffmpeg7: ffmpeg@7
+fuse2: libfuse@2

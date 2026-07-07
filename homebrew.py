@@ -108,8 +108,9 @@ class HomebrewIndex:
 
                 brew_name = formula.get("name", "")
 
-                if brew_name in brew_to_namebase:
-                    namebase = brew_to_namebase[brew_name.lower()]
+                lowname = brew_name.lower()
+                if lowname in brew_to_namebase:
+                    namebase = brew_to_namebase[lowname]
 
                     # Target the current stable release string inside the versions nested block
                     versions_block = formula.get("versions", {})

@@ -127,8 +127,9 @@ class FreeBSDIndex:
         fbsd_to_namebase = {v.lower(): k for k, v in allowed_freebsd_dict.items()}
 
         for name, version, _ in self._stream_lines():
-            if name in fbsd_to_namebase:
-                namebase = fbsd_to_namebase[name.lower()]
+            lowname = name.lower()
+            if lowname in fbsd_to_namebase:
+                namebase = fbsd_to_namebase[lowname]
                 final_results[namebase] = version
 
         return final_results
