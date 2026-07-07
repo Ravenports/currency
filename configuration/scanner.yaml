@@ -1,5 +1,6 @@
 infrastructure:
     - gnatcross
+    - gnatcross-binutils
     - gnatcross-bootstrap
     - gnatcross-sysroot-freebsd
     - gnatcross-sysroot-midnightbsd
@@ -93,3 +94,9 @@ unique:
     - autoselect-perl
     - autoselect-ssl
     - autoselect-ruby
+    - fonts-VTCGoblinHand-ttf
+    - fw-amdgpu
+    - libart-trinity
+    - linux-api-headers
+    - pekwm-themepack
+    - python-cffi117

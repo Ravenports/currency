@@ -208,6 +208,7 @@ gexiv2: gexiv2_016
 gexiv2-0.14: gexiv
 glibmm: glibmm26
 glibmm24: glibmm
+gnustep-make-bootstrap: gnustep-make
 golang: go126
 graphite: graphite2
 greybird-gtk-theme: greybird-theme
@@ -314,3 +315,4 @@ webkit2: webkit2-gtk
 xfconf: xfce4-conf
 xfdesktop: xfce4-desktop
 xfwm4-themes: xfce4-wm-themes
+sope: sope-mysql

@@ -152,3 +152,4 @@ sdl1_net: sdl_net
 sdl1_ttf: sdl_ttf
 texlive-bin: texlive
 webkit2: webkitgtk
+mdds-3.0: mdds
