@@ -57,6 +57,7 @@ adaports:
     - apq-odbc
     - apq-base
     - aflex-ayacc
+    - slider
     - ACATS
     - aws
     - libadalang
