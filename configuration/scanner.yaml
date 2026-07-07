@@ -32,7 +32,7 @@ metaports:
     - xorg-100dpi-fonts
     - xorg-type1-fonts
     - xorg-cyrillic-fonts
-    - truetype-fonts
+    - xorg-truetype-fonts
 
 adaports:
     - excel-writer
@@ -42,6 +42,7 @@ adaports:
     - aunit
     - ahven
     - AdaID
+    - lua-ada
     - booch95
     - florist
     - adasockets
@@ -62,6 +63,7 @@ adaports:
     - aws
     - libadalang
     - libadalang-tools
+    - libgpr2
     - AdaSAT
     - adabase
     - ada-markdown
@@ -80,6 +82,7 @@ adaports:
     - ada_spawn
     - langkit
     - langkit_support
+    - lal-refactor
     - vss-text
     - vss-extra
     - ada_libfswatch

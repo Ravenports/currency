@@ -115,3 +115,7 @@ qt6-qtwayland: qtwayland
 readymedia: minidlna
 ruby33: ruby@3.3
 ruby34: ruby@3.4
+texlive-bin: texlive
+tree-sitter-025: tree-sitter@0.25
+vo-aacenc: libvo-aacenc
+webkit2: webkitgtk

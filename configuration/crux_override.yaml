@@ -150,3 +150,5 @@ sdl1_image: sdl_image
 sdl1_mixer: sdl_mixer
 sdl1_net: sdl_net
 sdl1_ttf: sdl_ttf
+texlive-bin: texlive
+webkit2: webkitgtk
