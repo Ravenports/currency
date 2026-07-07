@@ -115,21 +115,22 @@ class FreeBSDIndex:
         """
         Processes index line structures, returning a flat lookup table mapping
         allowed package names directly to their version string.
-
         :param allowed_freebsd_dict: Dictionary defining strict name whitelist filters
         :return: Dict format like: { "pkg_name": "1.0" }
         """
         final_results = {}
         if not os.path.exists(self.cache_file):
-             raise FileNotFoundError(f"Index file not found at {self.cache_file}. Run fetch() first.")
+            raise FileNotFoundError(f"Index file not found at {self.cache_file}. Run fetch() first.")
 
-        # Invert your lookup mapping dictionary to run O(1) matching checks during iteration
-        fbsd_to_namebase = {v.lower(): k for k, v in allowed_freebsd_dict.items()}
+        # Invert lookup mapping: fbsd name -> list of namebases (one fbsd value may map to many keys)
+        fbsd_to_namebases: Dict[str, List[str]] = {}
+        for namebase, fbsd_name in allowed_freebsd_dict.items():
+            fbsd_to_namebases.setdefault(fbsd_name.lower(), []).append(namebase)
 
         for name, version, _ in self._stream_lines():
             lowname = name.lower()
-            if lowname in fbsd_to_namebase:
-                namebase = fbsd_to_namebase[lowname]
-                final_results[namebase] = version
+            if lowname in fbsd_to_namebases:
+                for namebase in fbsd_to_namebases[lowname]:
+                    final_results[namebase] = version
 
         return final_results

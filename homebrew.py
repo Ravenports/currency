@@ -84,39 +84,31 @@ class HomebrewIndex:
     def parse_and_filter(self, allowed_brew_dict: dict) -> dict:
         """
         Parses formula.json and filters out everything except targeted mapping entries.
-
         Homebrew's API index is a flat JSON array of objects:
         [ {"name": "wget", "versions": {"stable": "1.21.4"}}, ... ]
-
         :param allowed_brew_dict: Dict of {namebase: formula_name}
         :return: A dictionary of {namebase: stable_version}
         """
         final_results = {}
-
         if not os.path.exists(self.data_file):
             raise FileNotFoundError(f"Index file not found at {self.data_file}. Run fetch() first.")
-
-        # Invert your lookup mapping dictionary to run O(1) matching checks during iteration
-        brew_to_namebase = {v.lower(): k for k, v in allowed_brew_dict.items()}
+        # Invert lookup mapping: brew name -> list of namebases (one brew formula may map to many keys)
+        brew_to_namebases: Dict[str, List[str]] = {}
+        for namebase, brew_name in allowed_brew_dict.items():
+            brew_to_namebases.setdefault(brew_name.lower(), []).append(namebase)
 
         with open(self.data_file, "r", encoding="utf-8") as f:
             formulae_list = json.load(f)
-
             for formula in formulae_list:
                 if not isinstance(formula, dict):
                     continue
-
                 brew_name = formula.get("name", "")
-
                 lowname = brew_name.lower()
-                if lowname in brew_to_namebase:
-                    namebase = brew_to_namebase[lowname]
-
+                if lowname in brew_to_namebases:
                     # Target the current stable release string inside the versions nested block
                     versions_block = formula.get("versions", {})
                     stable_version = versions_block.get("stable")
-
                     if stable_version:
-                        final_results[namebase] = str(stable_version)
-
+                        for namebase in brew_to_namebases[lowname]:
+                            final_results[namebase] = str(stable_version)
         return final_results

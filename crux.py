@@ -97,36 +97,29 @@ class CruxIndex:
     def parse_and_filter(self, allowed_crux_dict: dict) -> dict:
         """
         Parses the repology ports index and filters out everything except targeted mapping entries.
-
         CRUX's repology index is a JSON object with a "ports" array:
         { "updated": "...", "ports": [ {"name": "readline", "version": "8.3.3", ...}, ... ] }
-
         :param allowed_crux_dict: Dict of {namebase: crux_port_name}
         :return: A dictionary of {namebase: version}
         """
         final_results = {}
-
         if not os.path.exists(self.data_file):
             raise FileNotFoundError(f"Index file not found at {self.data_file}. Run fetch() first.")
-
-        # Invert your lookup mapping dictionary to run O(1) matching checks during iteration
-        crux_to_namebase = {v: k for k, v in allowed_crux_dict.items()}
+        # Invert lookup mapping: crux name -> list of namebases (one crux port may map to many keys)
+        crux_to_namebases: Dict[str, List[str]] = {}
+        for namebase, crux_name in allowed_crux_dict.items():
+            crux_to_namebases.setdefault(crux_name, []).append(namebase)
 
         with open(self.data_file, "r", encoding="utf-8") as f:
             payload = json.load(f)
             ports = payload.get("ports", [])
-
             for port in ports:
                 if not isinstance(port, dict):
                     continue
-
                 crux_name = port.get("name")
-
-                if crux_name in crux_to_namebase:
-                    namebase = crux_to_namebase[crux_name]
-
+                if crux_name in crux_to_namebases:
                     version = port.get("version")
                     if version:
-                        final_results[namebase] = str(version)
-
+                        for namebase in crux_to_namebases[crux_name]:
+                            final_results[namebase] = str(version)
         return final_results

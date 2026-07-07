@@ -208,7 +208,6 @@ gexiv2: gexiv2_016
 gexiv2-0.14: gexiv
 glibmm: glibmm26
 glibmm24: glibmm
-gnatcross-binutils:
 golang: go126
 graphite: graphite2
 greybird-gtk-theme: greybird-theme
@@ -218,7 +217,6 @@ gstreamer1-plugins-libpng: gstreamer1-plugins
 gstreamer1-plugins-xshm: gstreamer1-plugins
 gstreamer1-plugins-xvideo: gstreamer1-plugins
 gtest: googletest
-hunspell-pt_BR:
 ixion-0.20: libixion
 libcxx: llvm22
 libdbusmenu-qt: libdbusmenu-qt6
